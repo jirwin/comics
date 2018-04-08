@@ -30,6 +30,7 @@ type Template struct {
 	Height   float64   `json:"height"`
 	Bubbles  []*Bubble `json:"bubbles"`
 	ImageURL string    `json:"image_url"`
+	fontPath string    `json:"-"`
 }
 
 func (t *Template) String() string {
@@ -73,14 +74,13 @@ func (t *Template) getBaseImg() (image.Image, error) {
 	return gg.LoadImage(tempFile.Name())
 }
 
-func (b *Bubble) setFontSize(dc *gg.Context, text string) {
+func (b *Bubble) setFontSize(dc *gg.Context, text, fontPath string) {
 	fontSize := float64(1)
 	renderedHeight := float64(0)
 
 Outer:
 	for renderedHeight < b.Height-(dc.FontHeight()) {
-		//FIXME: How do we load fonts in a portable way?
-		dc.LoadFontFace("/Library/Fonts/Arial.ttf", fontSize)
+		dc.LoadFontFace(fontPath, fontSize)
 		wrappedText := dc.WordWrap(text, b.Width)
 		for _, t := range wrappedText {
 			w, _ := dc.MeasureString(t)
@@ -109,9 +109,7 @@ func (t *Template) Render(text []string) ([]byte, error) {
 	dc.SetRGB(0, 0, 0)
 
 	for i, bubble := range t.Bubbles {
-		//dc.DrawRectangle(bubble.PosX, bubble.PosY, bubble.Width, bubble.Height)
-		//dc.Stroke()
-		bubble.setFontSize(dc, text[i])
+		bubble.setFontSize(dc, text[i], t.fontPath)
 		dc.DrawStringWrapped(text[i], bubble.PosX, bubble.PosY, 0, 0, bubble.Width, lineSpacing, gg.AlignLeft)
 	}
 
@@ -124,7 +122,7 @@ func (t *Template) Render(text []string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func NewTemplate(templateUrl string) (*Template, error) {
+func NewTemplate(templateUrl string, fontPath string) (*Template, error) {
 	resp, err := http.Get(templateUrl)
 	if err != nil {
 		return nil, err
@@ -141,6 +139,8 @@ func NewTemplate(templateUrl string) (*Template, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	t.fontPath = fontPath
 
 	return t, nil
 }
