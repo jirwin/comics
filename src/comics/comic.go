@@ -13,24 +13,7 @@ import (
 	"github.com/fogleman/gg"
 )
 
-//"awkward": {
-//     "width": 900,
-//     "height": 300,
-//     "bubbles": [
-//       {
-//         "x": 22,
-//         "y": 17,
-//         "width": 255,
-//         "height": 95
-//       },
-//       {
-//         "x": 328,
-//         "y": 29,
-//         "width": 255,
-//         "height": 95
-//       }
-//     ]
-//   },
+const lineSpacing = 1.5
 
 var imageCache = sync.Map{}
 
@@ -95,7 +78,7 @@ func (b *Bubble) setFontSize(dc *gg.Context, text string) {
 	renderedHeight := float64(0)
 
 Outer:
-	for renderedHeight < b.Height {
+	for renderedHeight < b.Height-lineSpacing {
 		//FIXME: How do we load fonts in a portable way?
 		dc.LoadFontFace("/Library/Fonts/Arial.ttf", fontSize)
 		wrappedText := dc.WordWrap(text, b.Width)
@@ -105,11 +88,11 @@ Outer:
 				break Outer
 			}
 		}
-		renderedHeight = dc.FontHeight() * 1.5 * float64(len(wrappedText))
+		renderedHeight = dc.FontHeight() * lineSpacing * float64(len(wrappedText))
 		fontSize++
 	}
 
-	dc.LoadFontFace("/Library/Fonts/Arial.ttf", fontSize)
+	dc.LoadFontFace("/Library/Fonts/Arial.ttf", fontSize-1)
 }
 
 func (t *Template) Render(text []string) ([]byte, error) {
@@ -127,7 +110,7 @@ func (t *Template) Render(text []string) ([]byte, error) {
 
 	for i, bubble := range t.Bubbles {
 		bubble.setFontSize(dc, text[i])
-		dc.DrawStringWrapped(text[i], bubble.PosX, bubble.PosY, 0, 0, bubble.Width, 1.5, gg.AlignLeft)
+		dc.DrawStringWrapped(text[i], bubble.PosX, bubble.PosY, 0, 0, bubble.Width, lineSpacing, gg.AlignLeft)
 	}
 
 	buf := bytes.NewBuffer(nil)
