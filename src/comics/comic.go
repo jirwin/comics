@@ -74,6 +74,7 @@ func (t *Template) getBaseImg() (image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
+		imageCache.Store(t.ImageURL, imageBytes)
 	}
 	tempFile, err := ioutil.TempFile("/tmp", "comic-base-img")
 	if err != nil {
@@ -95,6 +96,7 @@ func (b *Bubble) setFontSize(dc *gg.Context, text string) {
 
 Outer:
 	for renderedHeight < b.Height {
+		//FIXME: How do we load fonts in a portable way?
 		dc.LoadFontFace("/Library/Fonts/Arial.ttf", fontSize)
 		wrappedText := dc.WordWrap(text, b.Width)
 		for _, t := range wrappedText {
