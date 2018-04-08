@@ -92,7 +92,7 @@ Outer:
 		fontSize++
 	}
 
-	dc.LoadFontFace("/Library/Fonts/Arial.ttf", fontSize-1)
+	dc.LoadFontFace(fontPath, fontSize-1)
 }
 
 func (t *Template) Render(text []string) ([]byte, error) {
