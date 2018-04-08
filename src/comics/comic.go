@@ -78,7 +78,7 @@ func (b *Bubble) setFontSize(dc *gg.Context, text string) {
 	renderedHeight := float64(0)
 
 Outer:
-	for renderedHeight < b.Height-lineSpacing {
+	for renderedHeight < b.Height-lineSpacing*2 {
 		//FIXME: How do we load fonts in a portable way?
 		dc.LoadFontFace("/Library/Fonts/Arial.ttf", fontSize)
 		wrappedText := dc.WordWrap(text, b.Width)
